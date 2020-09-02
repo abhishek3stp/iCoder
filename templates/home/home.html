@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block homeactive %}active{% endblock homeactive %}
+
+{% block title %}iCoder{% endblock title %}
+
+{% block js %}
+<script>
+    var previews = document.getElementsByClassName('preview');
+    Array.from(previews).forEach((element) => {
+        element.innerHTML = element.innerText;
+    });
+</script>
+{% endblock js %}
+
+{% block body %}
+
+<div class="jumbotron my-0 p-5">
+    <h1 class="display-4">Welcome to iCoder!</h1>
+    <p class="lead">A Techno Blog Website for the Geeks.</p>
+    <hr class="my-4">
+    <p>Let us take you into a deeper experience, iCoder is to examine how technology will change life in the future for
+        a massive mainstream audience.</p>
+    <a class="btn btn-danger btn" href="/blog" role="button">Go to Blog</a>
+</div>
+
+<div class="container-fluid px-5">
+    <h1 class="font-weight-normal my-4">Latest Blogs</h1>
+    <div class="row">
+        {% for post in allPosts %}
+        <div class="col-lg-4 col-md-6">
+            <div
+                class=" row bg-light no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow position-relative">
+                <div class="col p-4 d-flex flex-column position-static">
+                    <strong class="d-inline-block text-danger">Article by {{post.author}}</strong>
+                    <h2 class="font-weight-normal">{{post.title}}</h2>
+                    <p class="font-weight-light">{{post.timestamp}}</p>
+                    <p class="card-text mb-auto">
+                    <div class="preview">{{post.content|safe|truncatechars:250}}</div>
+                    </p>
+                    <div>
+                        <a href="/blog/{{post.slug}}" role="button" class="btn btn-primary active">Read more</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock body %}

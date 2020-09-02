@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}BlogHome{% endblock title %}
+
+{% block body %}
+{% load humanize %}
+{% load extras %}
+
+<div class="container my-5">
+    <strong class="d-inline-block text-danger">Article by {{post.author}}</strong>
+    <h2 class="font-weight-normal">{{post.title}}</h2>
+    <p class="font-weight-light">{{post.timestamp}}</p>
+    <p>{{post.content|safe}}</p>
+</div>
+
+<div class="container">
+    <hr>
+    <div class="fb-like" data-href="/blog/{{post.slug}}" data-width="" data-layout="standard" data-action="like"
+        data-size="large" data-share="true"></div>
+    <hr>
+    <h3>{{comments.count}} Comments</h3>
+    <div>
+        {% if user.is_authenticated %}
+        <form action="/blog/postComment" method="post">
+            {% csrf_token %}
+            <div class="row my-3">
+                <div class="form-group col-md-6 p-0">
+                    <input type="text" class="form-control" name="comment" placeholder="Comment here" required>
+                </div>
+                <input type="hidden" name="parentSno" value="">
+                <input type="hidden" name="postSno" value={{post.sno}}>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary active">Submit</button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="my-3">
+            <p class="card-text">Please login to your account for posting a commemt</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% for comment in comments %}
+    <div class="row">
+        <div class="col-1 px-0">
+            <img src="/static/img/userimg.png" class="rounded-circle mx-auto d-block w-50" alt="user">
+        </div>
+
+        <div class="col-11 px-0">
+            <strong class="text-danger">{{comment.user.username}}</strong>
+            <span class="badge badge-pill badge-secondary  mx-2">{{comment.timestamp|naturaltime}}</span>
+            <p class="card-text my-2 ">{{comment.comment}}</p>
+
+            <div class="reply">
+                {% if user.is_authenticated %}
+                <!-- Reply -->
+                <button class="btn btn-primary btn-sm active" type="button" data-toggle="collapse"
+                    data-target="#reply{{comment.sno}}" aria-expanded="false"
+                    aria-controls="reply{{comment.sno}}">Reply</button>
+                <div class="collapse" id="reply{{comment.sno}}">
+                    <div class="card card-body my-2">
+                        <form action="/blog/postComment" method="post">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="form-group col-md-6 my-0 p-0">
+                                    <input type="text" class="form-control" name="comment" placeholder="Comment here"
+                                        required>
+                                </div>
+                                <input type="hidden" name="parentSno" value={{comment.sno}}>
+                                <input type="hidden" name="postSno" value={{post.sno}}>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary active">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <button class="btn btn-primary btn-sm active" type="button" data-toggle="collapse"
+                    data-target="#reply{{comment.sno}}" aria-expanded="false" aria-controls="reply{{comment.sno}}"
+                    disabled>login to Reply</button>
+                {% endif %}
+
+                <div class="replycomment mt-2">
+                    {% for reply in replyDict|get_val:comment.sno %}
+                    <div class="row">
+                        <div class="col-1 px-0">
+                            <img src="/static/img/userimg.png" class="rounded-circle mx-auto d-block w-50" alt="user">
+                        </div>
+                        <div class="col-11 px-0">
+                            <strong class="text-danger">{{reply.user.username}}</strong>
+                            <span class="badge badge-pill badge-secondary  mx-2">{{reply.timestamp|naturaltime}}</span>
+                            <p class="card-text my-2 ">{{reply.comment}}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-2">
+    {% endfor %}
+</div>
+{% endblock body %}
